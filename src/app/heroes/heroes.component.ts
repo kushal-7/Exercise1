@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 
 import { Hero } from '../hero';
 import { HeroService } from '../hero.service';
+import { switchMap } from 'rxjs/operators';
+
 
 @Component({
   selector: 'app-heroes',
@@ -32,8 +34,13 @@ export class HeroesComponent implements OnInit {
   }
 
   delete(hero: Hero): void {
-    this.heroes = this.heroes.filter(h => h !== hero);
-    this.heroService.deleteHero(hero.id).subscribe();
+    this.heroService.deleteHero(hero.id)
+      .pipe(
+        switchMap(() => this.heroService.getHeroes())
+      )
+      .subscribe(updatedHeroes => {
+        this.heroes = updatedHeroes;
+      });
   }
 
 }
